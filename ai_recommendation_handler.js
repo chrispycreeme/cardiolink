@@ -33,22 +33,51 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Parse JSON robustly, even if wrapped in ```json fences or smart quotes
+    // Parse JSON robustly, even if wrapped in code fences, smart quotes, or returned as a JSON-encoded string.
     function parseJsonSafe(raw) {
         if (!raw) return null;
         let text = raw.trim();
-        text = text.replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
+
+        // Aggressively strip markdown code blocks
+        // Remove ```json or ``` at start/end, and any remaining backticks
+        text = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+        
+        // If the result still has backticks, remove them all
+        if (text.includes('```')) {
+            text = text.replace(/```/g, '').trim();
+        }
+
+        // If extra prose surrounds JSON, extract the first {...} block.
+        const firstBrace = text.indexOf('{');
+        const lastBrace = text.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace > firstBrace) {
+            text = text.slice(firstBrace, lastBrace + 1);
+        }
+
         const smartToStraight = (s) => s.replace(/[\u201c\u201d]/g, '"').replace(/[\u2018\u2019]/g, "'");
-        try {
-            return JSON.parse(text);
-        } catch (_) {
+        const cleaned = smartToStraight(text);
+        const candidates = [text, cleaned];
+
+        for (const candidate of candidates) {
             try {
-                return JSON.parse(smartToStraight(text));
-            } catch (err) {
-                console.error('Failed to parse JSON from AI response', err, raw);
-                return null;
+                const parsed = JSON.parse(candidate);
+                if (typeof parsed === 'string') {
+                    // Sometimes the API returns a JSON string containing JSON.
+                    try {
+                        const nested = JSON.parse(parsed);
+                        return nested;
+                    } catch (_) {
+                        return { overview: parsed };
+                    }
+                }
+                return parsed;
+            } catch (_) {
+                continue;
             }
         }
+
+        console.error('Failed to parse JSON from AI response. Raw:', raw.substring(0, 200));
+        return null;
     }
 
     async function fetchAIRecommendations() {
@@ -75,9 +104,18 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const raw = await response.text();
-            const data = parseJsonSafe(raw);
+            console.log('Raw AI response:', raw);
+            let data = parseJsonSafe(raw);
+            console.log('Parsed data:', data);
 
-            if (!data) {
+            // If the AI returned a string blob, try to coerce it into structured data
+            if (typeof data === 'string') {
+                const again = parseJsonSafe(data);
+                data = again || { overview: data };
+            }
+
+            if (!data || typeof data !== 'object') {
+                console.error('Invalid data structure. Raw:', raw, 'Parsed:', data);
                 throw new Error('Invalid JSON returned from AI');
             }
 

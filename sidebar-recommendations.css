@@ -77,11 +77,20 @@
 .risk-list li,
 .precaution-list li {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 1rem;
     background-color: transparent;
     padding: 0;
     border-radius: 0;
+    line-height: 1.5;
+}
+
+.risk-list li div,
+.precaution-list li div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
 }
 
 .risk-list i,

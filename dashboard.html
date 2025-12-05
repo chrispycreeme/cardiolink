@@ -711,18 +711,76 @@
           if (lastErr) throw lastErr;
 
           try {
-            const parsed = JSON.parse(text);
+            // Remove markdown code blocks if present
+            let cleanText = text.trim();
+            cleanText = cleanText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+            
+            // Extract JSON object if surrounded by text
+            const firstBrace = cleanText.indexOf('{');
+            const lastBrace = cleanText.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace > firstBrace) {
+              cleanText = cleanText.slice(firstBrace, lastBrace + 1);
+            }
+            
+            const parsed = JSON.parse(cleanText);
             overview = parsed.overview || text;
-            risks = Array.isArray(parsed.risks) ? parsed.risks : [];
-            recommendations = Array.isArray(parsed.recommendations) ? parsed.recommendations : [];
+            
+            // Handle both string arrays and object arrays with title/description
+            risks = Array.isArray(parsed.risks) ? parsed.risks : 
+                    (Array.isArray(parsed.health_risks) ? parsed.health_risks : []);
+            recommendations = Array.isArray(parsed.recommendations) ? parsed.recommendations : 
+                             (Array.isArray(parsed.precautionary_measures) ? parsed.precautionary_measures : []);
           } catch (_e) {
+            console.error('Failed to parse Gemini response:', _e);
             overview = text || 'No overview returned.';
           }
         }
 
         ui.overviewText.textContent = overview || 'No overview returned.';
-        ui.riskList.innerHTML = risks.length ? risks.map((r) => `<li>${r}</li>`).join('') : '<li>No risks reported.</li>';
-        ui.precautionList.innerHTML = recommendations.length ? recommendations.map((r) => `<li>${r}</li>`).join('') : '<li>No recommendations returned.</li>';
+        
+        // Format risks with support for both string and object formats
+        if (risks.length) {
+          ui.riskList.innerHTML = risks.map((r) => {
+            if (typeof r === 'string') {
+              return `<li><i class="material-symbols-outlined error" style="color:#ff6b6b;font-size:18px;margin-right:8px;">error</i>${r}</li>`;
+            } else if (r.title || r.description) {
+              const title = r.title || 'Risk';
+              const desc = r.description || '';
+              return `<li>
+                <i class="material-symbols-outlined error" style="color:#ff6b6b;font-size:18px;margin-right:8px;">error</i>
+                <div>
+                  <strong>${title}</strong>
+                  ${desc ? `<br><span style="font-size:0.9em;opacity:0.8;">${desc}</span>` : ''}
+                </div>
+              </li>`;
+            }
+            return `<li>${JSON.stringify(r)}</li>`;
+          }).join('');
+        } else {
+          ui.riskList.innerHTML = '<li>No risks reported.</li>';
+        }
+        
+        // Format recommendations with support for both string and object formats
+        if (recommendations.length) {
+          ui.precautionList.innerHTML = recommendations.map((r) => {
+            if (typeof r === 'string') {
+              return `<li><i class="material-symbols-outlined" style="color:#64b5f6;font-size:18px;margin-right:8px;">spa</i>${r}</li>`;
+            } else if (r.title || r.description) {
+              const title = r.title || 'Recommendation';
+              const desc = r.description || '';
+              return `<li>
+                <i class="material-symbols-outlined" style="color:#64b5f6;font-size:18px;margin-right:8px;">spa</i>
+                <div>
+                  <strong>${title}</strong>
+                  ${desc ? `<br><span style="font-size:0.9em;opacity:0.8;">${desc}</span>` : ''}
+                </div>
+              </li>`;
+            }
+            return `<li>${JSON.stringify(r)}</li>`;
+          }).join('');
+        } else {
+          ui.precautionList.innerHTML = '<li>No recommendations returned.</li>';
+        }
       } catch (err) {
         ui.aiError.textContent = err.message || 'Gemini analysis failed.';
         ui.overviewText.textContent = 'Analysis unavailable.';
