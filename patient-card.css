@@ -1,0 +1,58 @@
+.patient-card {
+    grid-area: patient;
+    background-color: var(--bg-light);
+    border-radius: 20px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.patient-card-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.patient-card-header h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.patient-card-header i {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.patient-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    object-fit: cover;
+    border: 3px solid var(--accent-pink);
+}
+
+.patient-info h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.25rem;
+}
+
+.patient-info p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.patient-status {
+    background-color: var(--bg-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}

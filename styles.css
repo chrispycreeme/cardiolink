@@ -1,0 +1,170 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Quicksand', sans-serif;
+    background: #27233A;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    box-sizing: border-box; /* Ensure padding is included in element's total width/height */
+}
+
+.Logo {
+    text-align: center;
+    margin-bottom: 40px;
+    margin-top: -60px;
+    max-width: 90%;
+    padding: 0 15px; /* Add horizontal padding for smaller screens */
+    box-sizing: border-box;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.logo-img {
+    height: 60px;
+    width: auto;
+}
+
+.Logo h1 {
+    font-size: 50px; /* Removed 'thin' as it's not a valid CSS unit/keyword for font-size */
+    font-weight: 300; /* Added font-weight to make it thin if that was the intention */
+    color: #C42847;
+    margin-bottom: 25px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.Logo h2 {
+    font-size: 16px;
+    color: #d8d8d8;
+    max-width: 400px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.login-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #2C2840;
+    padding: 40px 20px; /* Add horizontal padding for responsiveness */
+    box-sizing: border-box;
+}
+
+.Login.form {
+    text-align: left;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px; /* Add internal padding to the form container */
+    /* Removed border-radius and box-shadow */
+}
+
+.Login.form h1 {
+    color: #fff;
+    margin-bottom: 10px;
+    text-align: left; /* Changed from center to left */
+}
+
+.Login.form h2 {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-bottom: 50px;
+    text-align: left; /* Changed from center to left */
+}
+
+.input-group {
+    margin-bottom: 25px; /* Increased margin for better spacing */
+    width: 100%;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 8px; /* Increased margin for better spacing */
+    padding-left: 5px;
+    transition: color 0.3s ease; /* Smooth transition for label color */
+}
+
+.Login.form input {
+    width: 100%;
+    padding: 14px 18px; /* Increased padding for better touch targets */
+    border: 1px solid #322E47; /* Match background color for subtle border */
+    border-radius: 30px; /* More rounded corners */
+    font-size: 1rem;
+    color: #fff; /* Ensure text color is white for input */
+    box-sizing: border-box; /* Include padding in width calculation */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions for focus */
+}
+
+#username,
+#password {
+    background-color: #322E47;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.Login.form input:hover {
+    border-color: #555; /* Subtle border change on hover */
+}
+
+.Login.form input:focus {
+    outline: none; /* Remove default outline */
+    border-color: #C42847; /* Accent pink border on focus */
+    box-shadow: 0 0 0 3px rgba(196, 40, 71, 0.3); /* Soft glow effect on focus */
+}
+
+.Login.form button {
+    width: 100%; /* Changed from 108% to 100% for better responsiveness */
+    padding: 14px; /* Increased padding */
+    background-color: #C42847;
+    color: #fff;
+    border: none;
+    border-radius: 30px; /* More rounded corners */
+    font-size: 1.1rem; /* Slightly larger font */
+    font-weight: 600; /* Bolder text */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Added transform and shadow transitions */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Initial button shadow */
+}
+
+.Login.form button:hover {
+    background-color: #a71f3a;
+    transform: translateY(-3px); /* Lift button slightly on hover */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+.Login.form button:active {
+    transform: translateY(0); /* Press down effect on click */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Reduced shadow on active */
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .Logo {
+        margin-top: -30px; /* Adjust top margin for smaller screens */
+        margin-bottom: 30px;
+    }
+    .Logo h1 {
+        font-size: 40px; /* Smaller font for logo on small screens */
+    }
+    .Logo h2 {
+        font-size: 0.9rem;
+        max-width: 300px;
+    }
+    .login-section {
+        padding: 40px 15px; /* More padding on smaller screens */
+    }
+    .Login.form {
+        padding: 25px; /* Adjust form internal padding */
+    }
+    .Login.form h2 {
+        margin-bottom: 30px; /* Adjust spacing */
+    }
+}

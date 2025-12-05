@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardiolink - Patient Dashboard (Firestore)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="patient-card.css">
+  <link rel="stylesheet" href="vital-grid-cards.css">
+  <link rel="stylesheet" href="vital-graph.css">
+  <link rel="stylesheet" href="sidebar-recommendations.css">
+</head>
+<body>
+  <div class="dashboard-container">
+    <nav class="sidebar">
+      <div class="sidebar-top">
+        <i class="material-symbols-outlined" id="backToList" style="cursor:pointer">arrow_back</i>
+      </div>
+      <div class="sidebar-bottom">
+        <i class="material-symbols-outlined ph-heartbeat">cardiology</i>
+      </div>
+    </nav>
+
+    <main class="main-content">
+      <header class="main-header">
+        <div class="header-text">
+          <h1 id="headerWelcome">Loading...</h1>
+          <p>Your personal patient dashboard overview</p>
+        </div>
+        <button class="logout-btn" id="logoutBtn">
+          <span>Log out</span>
+          <i class="material-symbols-outlined">logout</i>
+        </button>
+      </header>
+
+      <div class="content-grid">
+        <section class="patient-card">
+          <div class="patient-card-header">
+            <h2>Patient</h2>
+            <i class="material-symbols-outlined refresh-ai" id="refreshRecommendations">refresh</i>
+          </div>
+          <div class="patient-info">
+            <img id="patientAvatar" src="https://placehold.co/150x150/6C757D/FFFFFF?text=P" alt="Patient Avatar" class="patient-avatar">
+            <h3 id="patientName">Loading...</h3>
+            <p id="patientAge">Age Category: --</p>
+          </div>
+          <div class="patient-status">
+            <i class="material-symbols-outlined">info</i>
+            <span id="patientStatus">Status: --</span>
+          </div>
+        </section>
+
+        <section class="vitals-grid">
+          <div class="vital-card">
+            <div class="vital-icon heart-rate">
+              <i class="material-symbols-outlined">cardiology</i>
+            </div>
+            <div class="vital-details">
+              <h4>Heart Rate</h4>
+              <p id="heartRateTrend">Status: --</p>
+            </div>
+            <div class="vital-reading">
+              <span class="value" id="heartRateValue">--</span>
+              <span class="unit">bpm</span>
+            </div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-icon oxygen-level">
+              <i class="material-symbols-outlined">spo2</i>
+            </div>
+            <div class="vital-details">
+              <h4>Oxygen Level</h4>
+              <p id="spo2Trend">Status: --</p>
+            </div>
+            <div class="vital-reading">
+              <span class="value" id="spo2Value">--</span>
+              <span class="unit">percent</span>
+            </div>
+          </div>
+          <div class="vital-card">
+            <div class="vital-icon body-temp">
+              <i class="material-symbols-outlined">device_thermostat</i>
+            </div>
+            <div class="vital-details">
+              <h4>Body Temperature</h4>
+              <p id="tempTrend">Status: --</p>
+            </div>
+            <div class="vital-reading">
+              <span class="value" id="tempValue">--</span>
+              <span class="unit">Celsius</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="vitals-graph-section">
+          <div class="graph-header">
+            <div class="graph-title">
+              <h2>Vitals</h2>
+              <p>Summary of patient vitals</p>
+            </div>
+            <div class="graph-range">
+              <span id="sampleCount">Range: last 50</span>
+              <i class="material-symbols-outlined">monitoring</i>
+            </div>
+          </div>
+          <div class="graph-container">
+            <div class="chart-wrapper">
+              <canvas id="vitalsChart"></canvas>
+            </div>
+          </div>
+          <div class="graph-footer">
+            <div class="legend">
+              <span class="legend-item heart-rate-legend"><span class="dot"></span>Heart Rate</span>
+              <span class="legend-item oxygen-level-legend"><span class="dot"></span>Oxygen Level</span>
+              <span class="legend-item body-temp-legend"><span class="dot"></span>Body Temperature</span>
+            </div>
+            <div class="last-updated">
+              Last Updated: <span id="lastUpdated">--</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="ecg-graph-section">
+          <div class="graph-header">
+            <div class="graph-title">
+              <h2>QRS Complex</h2>
+              <p>Recent ECG waveform</p>
+            </div>
+            <div class="graph-range">
+              <span id="qrsSampleCount">Range: last 50</span>
+              <span class="qrs-chip">QRS: <span id="qrsWidthHeader">--</span></span>
+              <i class="material-symbols-outlined">monitor_heart</i>
+            </div>
+              <div class="qrs-bar" aria-hidden="true">
+                <div class="qrs-bar-fill" id="qrsBarFill"></div>
+                <div class="qrs-bar-label">80–120 ms normal</div>
+              </div>
+            <div style="color:#d9d9e3; font-size:0.9rem; margin-top:4px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <span>Normal ranges: QRS 80–120 ms • QT 360–440 ms • PR 120–200 ms</span>
+              <span id="qrsStatus" style="font-weight:700; color:#f2c94c;">Waiting...</span>
+            </div>
+          </div>
+          <div class="graph-container ecg-container">
+            <div class="chart-wrapper">
+              <canvas id="ecgChart"></canvas>
+            </div>
+          </div>
+          <div class="graph-footer">
+            <div class="legend">
+              <span class="legend-item ecg-legend"><span class="dot"></span>ECG (mV)</span>
+              <span class="legend-item rpeak-legend"><span class="dot"></span>Detected R-peaks</span>
+            </div>
+            <div class="last-updated">
+              QRS: <span id="qrsWidth">--</span> · Last Updated: <span id="ecgLastUpdated">--</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <aside class="recommendations">
+      <div class="recommendations-header">
+        <h2>Recommendations</h2>
+        <i class="material-symbols-outlined">chat_bubble</i>
+      </div>
+      <div class="ai-badge">
+        <i class="material-symbols-outlined">auto_awesome</i>
+        <span>AI Powered using Gemini</span>
+      </div>
+
+      <div class="recommendation-card">
+        <h3>Overview</h3>
+        <p id="overviewText" class="details"><span class="loading-spinner">Select a patient to load data.</span></p>
+      </div>
+
+      <div class="recommendation-card">
+        <h3>Potential Health Risks</h3>
+        <p>List of possible health implications based on collected data.</p>
+        <ul class="risk-list" id="riskList">
+          <li><span class="loading-spinner">Waiting for data...</span></li>
+        </ul>
+      </div>
+
+      <div class="recommendation-card">
+        <h3>Precautionary Measures</h3>
+        <p>List of possible health implications based on collected data.</p>
+        <ul class="precaution-list" id="precautionList">
+          <li><span class="loading-spinner">Waiting for data...</span></li>
+        </ul>
+      </div>
+
+      <div class="ai-actions" style="margin-top:12px; padding:0 16px 16px;">
+        <button class="button" id="analyzeBtn" type="button" style="width:100%; padding:10px; border:none; border-radius:12px; background:#C8435D; color:#fff; font-weight:700; cursor:pointer;">Analyze with Gemini</button>
+        <p class="small" id="aiError" style="color:#ff9b9b; margin-top:8px;"></p>
+      </div>
+
+      <!-- Hidden dev helper: inject idealized QRS waveform for quick demos/testing -->
+      <button id="btnInjectPerfectQrs" style="display:none;" aria-hidden="true">Inject Perfect QRS</button>
+    </aside>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+    import { getFirestore, doc, onSnapshot, collection, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+
+    const qs = new URLSearchParams(window.location.search);
+    const patientId = qs.get('patientId');
+
+    const ui = {
+      headerWelcome: document.getElementById('headerWelcome'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      backToList: document.getElementById('backToList'),
+      patientName: document.getElementById('patientName'),
+      patientAge: document.getElementById('patientAge'),
+      patientStatus: document.getElementById('patientStatus'),
+      patientAvatar: document.getElementById('patientAvatar'),
+      heartRateValue: document.getElementById('heartRateValue'),
+      heartRateTrend: document.getElementById('heartRateTrend'),
+      spo2Value: document.getElementById('spo2Value'),
+      spo2Trend: document.getElementById('spo2Trend'),
+      tempValue: document.getElementById('tempValue'),
+      tempTrend: document.getElementById('tempTrend'),
+      sampleCount: document.getElementById('sampleCount'),
+      lastUpdated: document.getElementById('lastUpdated'),
+      qrsSampleCount: document.getElementById('qrsSampleCount'),
+      ecgLastUpdated: document.getElementById('ecgLastUpdated'),
+      qrsWidth: document.getElementById('qrsWidth'),
+      qrsWidthHeader: document.getElementById('qrsWidthHeader'),
+      qrsStatus: document.getElementById('qrsStatus'),
+      qrsWidth: document.getElementById('qrsWidth'),
+      overviewText: document.getElementById('overviewText'),
+      riskList: document.getElementById('riskList'),
+      precautionList: document.getElementById('precautionList'),
+      analyzeBtn: document.getElementById('analyzeBtn'),
+      aiError: document.getElementById('aiError')
+    };
+
+    if (!patientId) {
+      alert('No patientId provided.');
+      window.location.href = 'patient-list.html';
+    }
+
+    if (!window.firebaseConfig || !window.firebaseConfig.apiKey) {
+      ui.aiError.textContent = 'Configure firebase-config.js first.';
+      throw new Error('Missing firebaseConfig');
+    }
+
+    const app = initializeApp(window.firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    ui.logoutBtn.addEventListener('click', () => signOut(auth));
+    ui.backToList.addEventListener('click', () => window.location.href = 'patient-list.html');
+
+    let chartInstance = null;
+    let ecgChartInstance = null;
+    let latestReadings = [];
+    let profile = {};
+
+    // ECG baseline helper to draw an isoelectric line for context.
+    const ecgBaselinePlugin = {
+      id: 'ecgBaseline',
+      afterDraw(chart) {
+        const yScale = chart.scales.y;
+        if (!yScale) return;
+        const y = yScale.getPixelForValue(0);
+        const { left, right } = chart.chartArea;
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+        ctx.setLineDash([5, 5]);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(left, y);
+        ctx.lineTo(right, y);
+        ctx.stroke();
+        ctx.restore();
+      }
+    };
+    Chart.register(ecgBaselinePlugin);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      ui.headerWelcome.textContent = `Welcome, ${user.email}!`;
+      watchProfile();
+      watchReadings();
+    });
+
+    function watchProfile() {
+      onSnapshot(doc(db, 'patients', patientId), (snap) => {
+        const data = snap.data() || {};
+        profile = data.profile || {};
+        const name = profile.patient_name || profile.name || `Patient ${patientId}`;
+        ui.patientName.textContent = name;
+        ui.patientAge.textContent = `Age Category: ${profile.age_category || profile.age || 'N/A'}`;
+        ui.patientStatus.textContent = `Status: ${profile.status || 'N/A'}`;
+        const avatarText = (name[0] || 'P').toUpperCase();
+        ui.patientAvatar.src = `https://placehold.co/150x150/6C757D/FFFFFF?text=${avatarText}`;
+      });
+    }
+
+    // Dev-only: inject an idealized P-QRS-T waveform and healthy vitals for demos.
+    function injectPerfectQrs() {
+      const now = Date.now();
+      const intervalMs = 20; // sample spacing
+      const count = 50;
+      const base = new Array(count).fill(0);
+      // P wave
+      base[6] = 0.12;
+      base[7] = 0.18;
+      // QRS complex (roughly 80 ms wide)
+      base[9] = -0.15; // Q
+      base[11] = 1.65; // R
+      base[12] = 0.95; // descending R
+      base[13] = -0.12; // S
+      // T wave
+      base[17] = 0.18;
+      base[18] = 0.34;
+      base[19] = 0.26;
+
+      const readings = base.map((mv, idx) => ({
+        id: `fake-${idx}`,
+        timestamp: now - (count - idx) * intervalMs,
+        heartRate: 75,
+        oxygen: 98,
+        temperature: 36.8,
+        ecgMv: mv
+      }));
+
+      latestReadings = readings;
+      updateVitals();
+      updateChart();
+      updateEcgChart();
+    }
+
+    function watchReadings() {
+      const readingsRef = collection(db, 'patients', patientId, 'readings');
+      const q = query(readingsRef, orderBy('timestamp', 'desc'), limit(50));
+      onSnapshot(q, (snapshot) => {
+        // Grab the newest 50 in descending order, then sort so charts stay chronological.
+        const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        docs.sort((a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0));
+        latestReadings = docs;
+        updateVitals();
+        updateChart();
+        updateEcgChart();
+      });
+    }
+
+    function formatTime(ts) {
+      const d = new Date(Number(ts));
+      if (Number.isNaN(d.getTime())) return '--';
+      return d.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function trendText(current, previous) {
+      if (current == null || previous == null) return 'Awaiting data';
+      const delta = current - previous;
+      if (Math.abs(delta) < 0.5) return 'Stable';
+      return delta > 0 ? `+${delta.toFixed(1)} vs last` : `${delta.toFixed(1)} vs last`;
+    }
+
+    function updateVitals() {
+      ui.sampleCount.textContent = `Samples: ${latestReadings.length}`;
+      if (!latestReadings.length) {
+        ui.heartRateValue.textContent = '--';
+        ui.spo2Value.textContent = '--';
+        ui.tempValue.textContent = '--';
+        ui.heartRateTrend.textContent = 'Awaiting data';
+        ui.spo2Trend.textContent = 'Awaiting data';
+        ui.tempTrend.textContent = 'Awaiting data';
+        ui.lastUpdated.textContent = '--';
+        return;
+      }
+      const last = latestReadings[latestReadings.length - 1];
+      const prev = latestReadings[latestReadings.length - 2] || {};
+      const hr = last.heartRate ?? last.heart_rate ?? last.hr;
+      const spo2 = last.oxygen ?? last.spo2 ?? last.oxygen_level;
+      const temp = last.temperature ?? last.body_temperature ?? last.temp;
+
+      ui.heartRateValue.textContent = hr != null ? hr : '--';
+      ui.spo2Value.textContent = spo2 != null ? spo2 : '--';
+      ui.tempValue.textContent = temp != null ? Number(temp).toFixed(1) : '--';
+
+      ui.heartRateTrend.textContent = trendText(hr, prev.heartRate ?? prev.heart_rate);
+      ui.spo2Trend.textContent = trendText(spo2, prev.oxygen ?? prev.spo2);
+      ui.tempTrend.textContent = trendText(temp, prev.temperature ?? prev.body_temperature);
+      ui.lastUpdated.textContent = formatTime(last.timestamp);
+    }
+
+    function updateChart() {
+      const labels = latestReadings.map((r) => formatTime(r.timestamp));
+      const hr = latestReadings.map((r) => r.heartRate ?? r.heart_rate ?? null);
+      const spo2 = latestReadings.map((r) => r.oxygen ?? r.spo2 ?? null);
+      const temp = latestReadings.map((r) => r.temperature ?? r.body_temperature ?? null);
+      const ctx = document.getElementById('vitalsChart');
+      if (!ctx) return;
+      if (!chartInstance) {
+        chartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              { label: 'Heart rate (bpm)', data: hr, borderColor: '#C8435D', backgroundColor: 'rgba(200,67,93,0.15)', fill: true, tension: 0.35 },
+              { label: 'SpO2 (%)', data: spo2, borderColor: '#43C85D', backgroundColor: 'rgba(67,200,93,0.15)', fill: true, tension: 0.35 },
+              { label: 'Temp (°C)', data: temp, borderColor: '#435DC8', backgroundColor: 'rgba(67,93,200,0.15)', fill: true, tension: 0.35 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { grid: { display: false }, ticks: { color: '#A5A5A5' } },
+              y: { grid: { color: '#35324B' }, ticks: { color: '#A5A5A5' } }
+            },
+            plugins: { legend: { display: false } }
+          }
+        });
+      } else {
+        chartInstance.data.labels = labels;
+        chartInstance.data.datasets[0].data = hr;
+        chartInstance.data.datasets[1].data = spo2;
+        chartInstance.data.datasets[2].data = temp;
+        chartInstance.update('none');
+      }
+    }
+
+    function getEcgSeries(readings) {
+      return readings.map((r) => {
+        const mv = r.ecgMv ?? r.ecg_mv;
+        if (mv != null) return Number(mv);
+        if (r.ecgRaw != null) {
+          return (Number(r.ecgRaw) * 3.3 * 1000) / 4095.0;
+        }
+        return null;
+      });
+    }
+
+    function detectRPeaks(series) {
+      const numeric = series.filter((v) => v != null);
+      if (numeric.length < 3) return [];
+      const mean = numeric.reduce((a, b) => a + b, 0) / numeric.length;
+      const variance = numeric.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / numeric.length;
+      const std = Math.sqrt(variance);
+      const threshold = mean + std * 0.8;
+      const peaks = [];
+      for (let i = 1; i < series.length - 1; i++) {
+        const v = series[i];
+        if (v == null) continue;
+        const prev = series[i - 1] ?? -Infinity;
+        const next = series[i + 1] ?? -Infinity;
+        if (v > threshold && v > prev && v > next) {
+          peaks.push(i);
+        }
+      }
+      return peaks;
+    }
+
+    function estimateQrsDuration(readings, series, peaks) {
+      if (!Array.isArray(peaks) || !peaks.length) return null;
+      const idx = peaks[peaks.length - 1];
+      const ts = readings.map((r) => Number(r.timestamp || 0));
+      const finiteTs = ts.filter((t) => Number.isFinite(t));
+      if (!finiteTs.length || !Number.isFinite(ts[idx])) return null;
+
+      const firstTs = finiteTs[0];
+      const lastTs = finiteTs[finiteTs.length - 1];
+      const count = readings.length;
+      const avgIntervalMs = count > 1 ? (lastTs - firstTs) / Math.max(count - 1, 1) : 0;
+      if (!Number.isFinite(avgIntervalMs) || avgIntervalMs <= 0) return null;
+
+      const baseline = 0;
+      let start = idx;
+      for (let i = idx; i > 0; i--) {
+        if (series[i] == null) continue;
+        start = i;
+        if (series[i] <= baseline) break;
+      }
+      let end = idx;
+      for (let i = idx; i < series.length; i++) {
+        if (series[i] == null) continue;
+        end = i;
+        if (series[i] <= baseline) break;
+      }
+
+      const durationMs = Math.max(0, (end - start) * avgIntervalMs);
+      if (!Number.isFinite(durationMs) || durationMs === 0) return null;
+      return durationMs;
+    }
+
+    function updateEcgChart() {
+      ui.qrsSampleCount.textContent = `Range: last ${latestReadings.length || 0}`;
+      if (!latestReadings.length) {
+        ui.ecgLastUpdated.textContent = '--';
+        ui.qrsWidth.textContent = '--';
+        ui.qrsWidthHeader.textContent = '--';
+        if (ui.qrsStatus) ui.qrsStatus.textContent = 'Waiting...';
+        const bar = document.getElementById('qrsBarFill');
+        if (bar) bar.style.width = '0%';
+        if (ecgChartInstance) {
+          ecgChartInstance.data.labels = [];
+          ecgChartInstance.data.datasets.forEach((ds) => (ds.data = []));
+          ecgChartInstance.update('none');
+        }
+        return;
+      }
+
+      const labels = latestReadings.map((r) => formatTime(r.timestamp));
+      const ecg = getEcgSeries(latestReadings);
+      const peakIdx = detectRPeaks(ecg);
+      const peakPoints = peakIdx.map((i) => ({ x: labels[i], y: ecg[i] }));
+      const qrsMs = estimateQrsDuration(latestReadings, ecg, peakIdx);
+
+      const ctx = document.getElementById('ecgChart');
+      if (!ctx) return;
+
+      if (!ecgChartInstance) {
+        ecgChartInstance = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: 'ECG (mV)',
+                data: ecg,
+                borderColor: '#f54b64',
+                backgroundColor: 'rgba(245, 75, 100, 0.08)',
+                borderWidth: 2.4,
+                tension: 0.01,
+                pointRadius: 0,
+                fill: false,
+                spanGaps: true,
+                borderJoinStyle: 'miter'
+              },
+              {
+                type: 'scatter',
+                label: 'R-peaks',
+                data: peakPoints,
+                borderColor: '#F2C94C',
+                backgroundColor: '#F2C94C',
+                pointStyle: 'triangle',
+                pointRadius: 4,
+                showLine: false
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: { padding: { left: 6, right: 8, top: 6, bottom: 6 } },
+            elements: { line: { tension: 0.05 }, point: { radius: 0, hoverRadius: 0 } },
+            scales: {
+              x: {
+                grid: { display: false },
+                ticks: {
+                  color: '#d9d9e3',
+                  font: { size: 11 },
+                  maxTicksLimit: 10,
+                  autoSkip: true,
+                  autoSkipPadding: 8
+                }
+              },
+              y: {
+                grid: { color: 'rgba(255, 255, 255, 0.06)' },
+                ticks: { color: '#d9d9e3', font: { size: 11 } },
+                suggestedMin: -2.5,
+                suggestedMax: 4.5
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(18, 20, 35, 0.9)',
+                borderColor: 'rgba(255,255,255,0.12)',
+                borderWidth: 1,
+                titleFont: { size: 12, weight: '600' },
+                bodyFont: { size: 12 },
+                padding: 10,
+                displayColors: true
+              },
+              ecgBaseline: {}
+            }
+          }
+        });
+      } else {
+        ecgChartInstance.data.labels = labels;
+        ecgChartInstance.data.datasets[0].data = ecg;
+        ecgChartInstance.data.datasets[1].data = peakPoints;
+        ecgChartInstance.update('none');
+      }
+
+      const last = latestReadings[latestReadings.length - 1];
+      ui.ecgLastUpdated.textContent = formatTime(last.timestamp);
+      const qrsText = qrsMs ? `${qrsMs.toFixed(0)} ms` : '--';
+      ui.qrsWidth.textContent = qrsText;
+      ui.qrsWidthHeader.textContent = qrsText;
+      if (ui.qrsStatus) {
+        if (!qrsMs) {
+          ui.qrsStatus.textContent = 'Waiting...';
+          ui.qrsStatus.style.color = '#f2c94c';
+        } else if (qrsMs >= 80 && qrsMs <= 120) {
+          ui.qrsStatus.textContent = 'QRS within normal (80–120 ms)';
+          ui.qrsStatus.style.color = '#6be0c8';
+        } else {
+          ui.qrsStatus.textContent = 'QRS outside normal range';
+          ui.qrsStatus.style.color = '#ffb3b3';
+        }
+      }
+
+      // Update bar fill position relative to normal range; clamp to 0-200 ms span.
+      const bar = document.getElementById('qrsBarFill');
+      if (bar) {
+        const spanMs = 200; // visual scale 0–200 ms
+        const clamped = qrsMs ? Math.max(0, Math.min(spanMs, qrsMs)) : 0;
+        const percent = (clamped / spanMs) * 100;
+        bar.style.width = `${percent}%`;
+      }
+    }
+
+    async function runGemini() {
+      ui.aiError.textContent = '';
+      ui.overviewText.textContent = 'Analyzing with Gemini...';
+      ui.riskList.innerHTML = '<li>...</li>';
+      ui.precautionList.innerHTML = '<li>...</li>';
+      ui.analyzeBtn.disabled = true;
+
+      if (!latestReadings.length) {
+        ui.aiError.textContent = 'No readings available to analyze.';
+        ui.analyzeBtn.disabled = false;
+        return;
+      }
+
+      const proxyUrl = window.geminiProxyUrl || '';
+      const directKey = window.geminiApiKey || '';
+      const hasProxy = proxyUrl && !proxyUrl.includes('your-vercel-app');
+      const hasDirect = directKey && directKey !== 'YOUR_GEMINI_API_KEY';
+
+      if (!hasProxy && !hasDirect) {
+        ui.aiError.textContent = 'Set geminiApiKey in firebase-config.js (proxy not used).';
+        ui.analyzeBtn.disabled = false;
+        return;
+      }
+
+      const payload = {
+        patientId,
+        profile,
+        vitals: latestReadings.slice(-20)
+      };
+
+      try {
+        let overview = '';
+        let risks = [];
+        let recommendations = [];
+
+        if (hasProxy) {
+          const res = await fetch(proxyUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) throw new Error(`Gemini proxy error ${res.status}`);
+          const data = await res.json();
+          overview = data.overview || '';
+          risks = Array.isArray(data.risks) ? data.risks : [];
+          recommendations = Array.isArray(data.recommendations) ? data.recommendations : [];
+        } else {
+          const prompt = {
+            contents: [
+              {
+                parts: [
+                  {
+                    text: `You are a cardiology assistant. Given patient profile and recent vitals, return JSON with keys overview (string), risks (array of short bullet strings), recommendations (array of short bullet strings). Keep responses concise. Data:\n${JSON.stringify(payload, null, 2)}`
+                  }
+                ]
+              }
+            ]
+          };
+
+          const endpoints = [
+            'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash-lite:generateContent',
+          ];
+
+          let text = '';
+          let lastErr = null;
+          for (const url of endpoints) {
+            try {
+              const res = await fetch(`${url}?key=${directKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(prompt)
+              });
+              if (!res.ok) throw new Error(`Gemini API error ${res.status}`);
+              const data = await res.json();
+              text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+              lastErr = null;
+              break;
+            } catch (err) {
+              lastErr = err;
+            }
+          }
+          if (lastErr) throw lastErr;
+
+          try {
+            const parsed = JSON.parse(text);
+            overview = parsed.overview || text;
+            risks = Array.isArray(parsed.risks) ? parsed.risks : [];
+            recommendations = Array.isArray(parsed.recommendations) ? parsed.recommendations : [];
+          } catch (_e) {
+            overview = text || 'No overview returned.';
+          }
+        }
+
+        ui.overviewText.textContent = overview || 'No overview returned.';
+        ui.riskList.innerHTML = risks.length ? risks.map((r) => `<li>${r}</li>`).join('') : '<li>No risks reported.</li>';
+        ui.precautionList.innerHTML = recommendations.length ? recommendations.map((r) => `<li>${r}</li>`).join('') : '<li>No recommendations returned.</li>';
+      } catch (err) {
+        ui.aiError.textContent = err.message || 'Gemini analysis failed.';
+        ui.overviewText.textContent = 'Analysis unavailable.';
+      } finally {
+        ui.analyzeBtn.disabled = false;
+      }
+    }
+
+    ui.analyzeBtn.addEventListener('click', runGemini);
+
+    const devBtn = document.getElementById('btnInjectPerfectQrs');
+    if (devBtn) {
+      devBtn.addEventListener('click', injectPerfectQrs);
+    }
+  </script>
+</body>
+</html>

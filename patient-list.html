@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardiolink - Patient List (Firestore)</title>
+  <link rel="stylesheet" href="patient_search.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <button class="logout-btn" id="logoutBtn">
+    <i class="material-symbols-outlined">logout</i>
+    <span>Logout</span>
+  </button>
+
+  <div class="search-page-container">
+    <header class="page-header">
+      <h1 class="logo">
+        <i class="material-symbols-outlined">ecg_heart</i>
+        <span>MEDICARE</span>
+      </h1>
+      <p class="tagline" id="welcomeText">Loading...</p>
+    </header>
+
+    <div class="toolbar">
+      <div class="search-bar">
+        <input type="text" id="searchPatient" placeholder="Search patients by name...">
+        <i class="material-symbols-outlined">search</i>
+      </div>
+      <div class="sort-control">
+        <span>Sort by:</span>
+        <div class="dropdown">
+          <select id="sortBy">
+            <option value="nameAsc">Name (A-Z)</option>
+            <option value="nameDesc">Name (Z-A)</option>
+            <option value="ageAsc">Age (Low to High)</option>
+            <option value="ageDesc">Age (High to Low)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <main class="patient-grid" id="patientGrid"></main>
+    <div class="pagination" id="paginationControls"></div>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+    import { getFirestore, collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+
+    const grid = document.getElementById('patientGrid');
+    const paginationControls = document.getElementById('paginationControls');
+    const searchInput = document.getElementById('searchPatient');
+    const sortSelect = document.getElementById('sortBy');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const welcomeText = document.getElementById('welcomeText');
+
+    const state = {
+      allPatients: [],
+      searchTerm: '',
+      sortOrder: 'nameAsc',
+      currentPage: 1,
+      perPage: 6
+    };
+
+    if (!window.firebaseConfig || !window.firebaseConfig.apiKey) {
+      grid.innerHTML = '<p style="color:#ff9b9b;">Configure firebase-config.js first.</p>';
+      throw new Error('Missing firebaseConfig');
+    }
+
+    const app = initializeApp(window.firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    logoutBtn.addEventListener('click', () => signOut(auth));
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      welcomeText.textContent = `Welcome, ${user.email}!`;
+      watchPatients();
+    });
+
+    function watchPatients() {
+      onSnapshot(collection(db, 'patients'), (snapshot) => {
+        const arr = snapshot.docs.map((doc) => {
+          const data = doc.data() || {};
+          const profile = data.profile || {};
+          return {
+            id: doc.id,
+            patient_name: profile.patient_name || profile.name || `Patient ${doc.id}`,
+            age_category: profile.age_category || profile.age || 'N/A'
+          };
+        });
+        state.allPatients = arr;
+        state.currentPage = 1;
+        render();
+      });
+    }
+
+    function applySearch(patients, term) {
+      if (!term) return patients;
+      const needle = term.toLowerCase();
+      return patients.filter((p) => (p.patient_name || '').toLowerCase().includes(needle));
+    }
+
+    function getAgeValue(category) {
+      if (!category) return 0;
+      const c = String(category).toLowerCase();
+      if (c.includes('senior')) return 3;
+      if (c.includes('adult')) return 2;
+      if (c.includes('child')) return 1;
+      const num = parseInt(c, 10);
+      return Number.isFinite(num) ? num : 0;
+    }
+
+    function applySort(patients, order) {
+      const sorted = [...patients];
+      sorted.sort((a, b) => {
+        if (order === 'nameAsc') return (a.patient_name || '').localeCompare(b.patient_name || '');
+        if (order === 'nameDesc') return (b.patient_name || '').localeCompare(a.patient_name || '');
+        if (order === 'ageAsc') return getAgeValue(a.age_category) - getAgeValue(b.age_category);
+        if (order === 'ageDesc') return getAgeValue(b.age_category) - getAgeValue(a.age_category);
+        return 0;
+      });
+      return sorted;
+    }
+
+    function renderPagination(total) {
+      paginationControls.innerHTML = '';
+      const pages = Math.ceil(total / state.perPage);
+      if (pages <= 1) return;
+
+      const btn = (label, disabled, onClick) => {
+        const el = document.createElement('button');
+        el.textContent = label;
+        el.disabled = disabled;
+        el.addEventListener('click', onClick);
+        return el;
+      };
+
+      paginationControls.appendChild(btn('Previous', state.currentPage === 1, () => {
+        state.currentPage = Math.max(1, state.currentPage - 1);
+        render();
+      }));
+
+      for (let i = 1; i <= pages; i++) {
+        const el = document.createElement('button');
+        el.textContent = i;
+        el.classList.add('page-number');
+        if (i === state.currentPage) el.classList.add('active');
+        el.addEventListener('click', () => { state.currentPage = i; render(); });
+        paginationControls.appendChild(el);
+      }
+
+      paginationControls.appendChild(btn('Next', state.currentPage === pages, () => {
+        state.currentPage = Math.min(pages, state.currentPage + 1);
+        render();
+      }));
+    }
+
+    function renderPatients(list) {
+      grid.innerHTML = '';
+      if (!list.length) {
+        grid.innerHTML = '<p style="text-align:center; width:100%;">No patients found.</p>';
+        paginationControls.innerHTML = '';
+        return;
+      }
+      list.forEach((patient) => {
+        const avatarText = (patient.patient_name || 'P').charAt(0).toUpperCase();
+        grid.innerHTML += `
+          <a href="dashboard.html?patientId=${encodeURIComponent(patient.id)}" class="patient-card-item-link" style="text-decoration: none; color: inherit;">
+            <div class="patient-card-item">
+              <img src="https://placehold.co/60x60/35324B/FFFFFF?text=${avatarText}" alt="Patient Avatar" class="avatar">
+              <div class="patient-details">
+                <h4>${patient.patient_name || 'Unknown Patient'}</h4>
+                <p>Age Category: ${patient.age_category || 'N/A'}</p>
+              </div>
+              <i class="material-symbols-outlined menu-icon">dehaze</i>
+            </div>
+          </a>`;
+      });
+    }
+
+    function render() {
+      const searched = applySearch(state.allPatients, state.searchTerm);
+      const sorted = applySort(searched, state.sortOrder);
+      const start = (state.currentPage - 1) * state.perPage;
+      const paged = sorted.slice(start, start + state.perPage);
+      renderPatients(paged);
+      renderPagination(sorted.length);
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      state.searchTerm = e.target.value;
+      state.currentPage = 1;
+      render();
+    });
+
+    sortSelect.addEventListener('change', (e) => {
+      state.sortOrder = e.target.value;
+      state.currentPage = 1;
+      render();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+:root {
+    --bg-dark: #1E1B32;
+    --bg-medium: #27233A;
+    --bg-light: #35324B;
+    --text-primary: #FFFFFF;
+    --text-secondary: #B2B2B2;
+    --accent-pink: #C8435D;
+    --accent-blue: #0080FF;
+    --accent-orange: #DB9054;
+    --font-family: 'Quicksand', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.dashboard-container {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    background-color: var(--bg-dark);
+    /* Updated */
+    overflow: hidden;
+}
+
+.sidebar {
+    background-color: var(--bg-light);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar i {
+    font-size: 1.8rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.sidebar i:hover {
+    color: var(--text-primary);
+}
+
+.sidebar .ph-heartbeat {
+    color: var(--accent-pink);
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 2rem 2.5rem;
+    overflow-y: auto;
+    background-color: var(--bg-medium);
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.header-text h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.header-text p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.logout-btn {
+    background: transparent;
+    color: var(--accent-pink);
+    border: 1px solid var(--accent-pink);
+    border-radius: 20px;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+    background-color: #4a4d6d;
+}
+
+.logout-btn:focus {
+    outline: none;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-template-rows: auto auto;
+    gap: 1.5rem;
+    grid-template-areas:
+        "patient vitals"
+        "graph graph";
+}
+
+.main-content::-webkit-scrollbar,
+.recommendations::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track,
+.recommendations::-webkit-scrollbar-track {
+    background: var(--bg-medium);
+    border-radius: 10px;
+}
+
+.main-content::-webkit-scrollbar-thumb,
+.recommendations::-webkit-scrollbar-thumb {
+    background: var(--bg-light);
+    border-radius: 10px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover,
+.recommendations::-webkit-scrollbar-thumb:hover {
+    background: #4a4d6d;
+}
+
+@media (max-width: 1400px) {
+    .dashboard-container {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .main-content {
+        padding: 1.5rem;
+    }
+
+    .recommendations {
+        width: 100% !important;
+        border-top: 1px solid var(--bg-dark);
+    }
+}
+
+@media (max-width: 992px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "patient"
+            "vitals"
+            "graph";
+    }
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .graph-header,
+    .graph-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .legend {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .sidebar {
+        flex-direction: row;
+        padding: 1rem;
+        width: 100%;
+    }
+}

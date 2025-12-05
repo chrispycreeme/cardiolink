@@ -1,0 +1,704 @@
+/* --- CSS Reset & Global Styles --- */
+:root {
+    --bg-dark: #1E1B32;
+    --bg-medium: #27233A;
+    --bg-light: #35324B;
+    --text-primary: #FFFFFF;
+    --text-secondary: #A5A5A5;
+    --accent-pink: #C8435D;
+    --font-family: 'Quicksand', sans-serif;
+    
+    /* Responsive spacing variables */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+    
+    /* Responsive font sizes */
+    --font-xs: 0.75rem;
+    --font-sm: 0.875rem;
+    --font-base: 1rem;
+    --font-lg: 1.125rem;
+    --font-xl: 1.25rem;
+    --font-2xl: 1.5rem;
+    --font-3xl: 1.875rem;
+    --font-4xl: 2.25rem;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-medium);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: var(--spacing-md);
+    overflow-x: hidden;
+    line-height: 1.5;
+}
+
+/* --- Logout Button --- */
+.logout-btn {
+    background: transparent;
+    color: var(--accent-pink);
+    border: 1px solid var(--accent-pink);
+    border-radius: 20px;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--font-family);
+    font-size: var(--font-base);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: fixed;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    z-index: 1000;
+    white-space: nowrap;
+}
+
+.logout-btn:hover {
+    background-color: var(--accent-pink);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.logout-btn:focus {
+    outline: 2px solid var(--accent-pink);
+    outline-offset: 2px;
+}
+
+/* --- Main Container --- */
+.search-page-container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-xxl); /* Account for fixed logout button */
+}
+
+/* --- Header --- */
+.page-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+    width: 100%;
+    max-width: 600px;
+}
+
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-2xl);
+    font-weight: 500;
+    color: var(--accent-pink);
+    margin-bottom: var(--spacing-lg);
+    position: relative;
+    padding-bottom: var(--spacing-lg);
+}
+
+.logo::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(80%, 300px);
+    height: 2px;
+    background-color: var(--bg-light);
+}
+
+.logo .material-symbols-outlined {
+    font-size: var(--font-4xl);
+    font-variation-settings: 'wght' 100;
+}
+
+.tagline {
+    font-size: var(--font-base);
+    color: var(--text-primary);
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+}
+
+/* --- Toolbar --- */
+.toolbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.search-bar {
+    position: relative;
+    flex: 1 1 300px;
+    min-width: 250px;
+    max-width: 500px;
+}
+
+.search-bar input {
+    width: 100%;
+    background-color: var(--bg-dark);
+    border: 2px solid transparent;
+    border-radius: 25px;
+    padding: 0.875rem 3.5rem 0.875rem 1.5rem;
+    font-family: var(--font-family);
+    color: var(--text-primary);
+    font-size: var(--font-base);
+    transition: all 0.3s ease;
+}
+
+.search-bar input:focus {
+    outline: none;
+    border-color: var(--accent-pink);
+    box-shadow: 0 0 0 3px rgba(200, 67, 93, 0.1);
+}
+
+.search-bar input::placeholder {
+    color: var(--text-secondary);
+}
+
+.search-bar .material-symbols-outlined {
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    pointer-events: none;
+}
+
+.sort-control {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.dropdown {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background-color: var(--bg-dark);
+    padding: 0.875rem 1.5rem;
+    border-radius: 15px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    min-width: 140px;
+}
+
+.dropdown:hover {
+    background-color: var(--bg-light);
+}
+
+.dropdown:focus-within {
+    border-color: var(--accent-pink);
+}
+
+.dropdown .material-symbols-outlined {
+    color: var(--accent-pink);
+    font-size: 1.25rem;
+}
+
+#sortBy {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    padding: 0;
+    appearance: none;
+    cursor: pointer;
+    flex: 1;
+}
+
+#sortBy:focus {
+    outline: none;
+}
+
+/* --- Patient Grid --- */
+.patient-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    width: 100%;
+    margin-bottom: var(--spacing-xxl);
+}
+
+.patient-card-item {
+    background-color: var(--bg-dark);
+    border-radius: 15px;
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    transition: all 0.3s ease;
+    position: relative;
+    border: 2px solid transparent;
+    min-height: 100px;
+}
+
+.patient-card-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent-pink);
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--bg-light);
+    flex-shrink: 0;
+}
+
+.patient-details {
+    flex: 1;
+    min-width: 0; /* Prevents flex item from overflowing */
+}
+
+.patient-details h4 {
+    font-size: var(--font-lg);
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.patient-details p {
+    color: var(--text-secondary);
+    font-size: var(--font-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.status-icon,
+.menu-icon {
+    font-size: 1.5rem;
+    cursor: pointer;
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    transition: all 0.3s ease;
+    padding: var(--spacing-xs);
+    border-radius: 50%;
+}
+
+.status-icon:hover,
+.menu-icon:hover {
+    background-color: var(--bg-light);
+}
+
+.status-icon.error {
+    color: var(--accent-pink);
+}
+
+.menu-icon {
+    color: var(--accent-pink);
+}
+
+/* --- Pagination --- */
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.pagination .material-symbols-outlined {
+    cursor: pointer;
+    font-size: 1.75rem;
+    color: var(--accent-pink);
+    transition: all 0.3s ease;
+    padding: var(--spacing-xs);
+    border-radius: 50%;
+}
+
+.pagination .material-symbols-outlined:hover {
+    background-color: var(--bg-dark);
+    transform: scale(1.1);
+}
+
+.pagination .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--bg-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination .dot:hover {
+    background-color: var(--accent-pink);
+}
+
+.page-number {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: var(--font-base);
+    background-color: var(--bg-light);
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-number.active {
+    background-color: var(--accent-pink);
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.page-number:hover:not(.active) {
+    background-color: var(--bg-dark);
+    transform: translateY(-2px);
+}
+
+.pagination button {
+    background-color: var(--bg-dark);
+    color: var(--accent-pink);
+    border: 1px solid var(--accent-pink);
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-family: var(--font-family);
+    font-size: var(--font-sm);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: var(--accent-pink);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination .ellipsis {
+    font-size: var(--font-base);
+    color: var(--text-secondary);
+    padding: 0 var(--spacing-xs);
+}
+
+/* --- Responsive Design --- */
+
+/* Large tablets and small desktops */
+@media (max-width: 1024px) {
+    .patient-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--spacing-md);
+    }
+    
+    .search-page-container {
+        padding: var(--spacing-sm);
+    }
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+    :root {
+        --spacing-md: 0.75rem;
+        --spacing-lg: 1rem;
+        --spacing-xl: 1.5rem;
+        --spacing-xxl: 2rem;
+    }
+    
+    body {
+        padding: var(--spacing-sm);
+    }
+    
+    .logout-btn {
+        position: fixed;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        padding: 0.5rem 1rem;
+        font-size: var(--font-sm);
+    }
+    
+    .search-page-container {
+        margin-top: var(--spacing-xl);
+    }
+    
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-md);
+    }
+    
+    .search-bar {
+        max-width: none;
+        flex: none;
+    }
+    
+    .sort-control {
+        justify-content: space-between;
+        width: 100%;
+    }
+    
+    .dropdown {
+        flex: 1;
+        justify-content: space-between;
+        max-width: 200px;
+    }
+    
+    .patient-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+    
+    .logo {
+        font-size: var(--font-xl);
+    }
+    
+    .logo .material-symbols-outlined {
+        font-size: var(--font-3xl);
+    }
+    
+    .tagline {
+        font-size: var(--font-sm);
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    :root {
+        --spacing-sm: 0.375rem;
+        --spacing-md: 0.5rem;
+        --spacing-lg: 0.75rem;
+        --spacing-xl: 1rem;
+        --spacing-xxl: 1.5rem;
+    }
+    
+    body {
+        padding: var(--spacing-xs);
+        align-items: flex-start;
+    }
+    
+    .logout-btn {
+        position: fixed;
+        top: var(--spacing-xs);
+        right: var(--spacing-xs);
+        padding: 0.375rem 0.75rem;
+        font-size: var(--font-xs);
+        gap: 0.25rem;
+    }
+    
+    .search-page-container {
+        padding: var(--spacing-xs);
+        margin-top: var(--spacing-lg);
+    }
+    
+    .page-header {
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .logo {
+        font-size: var(--font-lg);
+        margin-bottom: var(--spacing-sm);
+        padding-bottom: var(--spacing-sm);
+    }
+    
+    .logo .material-symbols-outlined {
+        font-size: var(--font-xl);
+    }
+    
+    .tagline {
+        font-size: var(--font-xs);
+        padding: 0 var(--spacing-sm);
+    }
+    
+    .toolbar {
+        margin-bottom: var(--spacing-md);
+        gap: var(--spacing-sm);
+    }
+    
+    .search-bar {
+        min-width: 200px;
+    }
+    
+    .search-bar input {
+        padding: 0.625rem 2.5rem 0.625rem 1rem;
+        font-size: var(--font-sm);
+    }
+    
+    .search-bar .material-symbols-outlined {
+        right: 1rem;
+        font-size: 1.25rem;
+    }
+    
+    .dropdown {
+        padding: 0.625rem 1rem;
+        font-size: var(--font-sm);
+        min-width: 120px;
+    }
+    
+    .patient-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+    
+    .patient-card-item {
+        padding: var(--spacing-sm);
+        min-height: 80px;
+    }
+    
+    .avatar {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .patient-details h4 {
+        font-size: var(--font-base);
+    }
+    
+    .patient-details p {
+        font-size: var(--font-xs);
+    }
+    
+    .status-icon,
+    .menu-icon {
+        font-size: 1.25rem;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+    }
+    
+    .pagination {
+        gap: var(--spacing-sm);
+        flex-wrap: wrap;
+    }
+    
+    .pagination .material-symbols-outlined {
+        font-size: 1.5rem;
+    }
+    
+    .page-number {
+        font-size: var(--font-sm);
+        padding: 0.375rem 0.5rem;
+        min-width: 32px;
+    }
+    
+    .pagination button {
+        padding: 0.375rem 0.75rem;
+        font-size: var(--font-xs);
+    }
+    
+    .pagination .ellipsis {
+        font-size: var(--font-sm);
+    }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+    .search-bar {
+        min-width: 180px;
+    }
+    
+    .patient-grid {
+        gap: 0.375rem;
+    }
+    
+    .patient-card-item {
+        padding: 0.375rem;
+        gap: 0.5rem;
+    }
+    
+    .avatar {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .patient-details h4 {
+        font-size: var(--font-sm);
+    }
+    
+    .patient-details p {
+        font-size: 0.6875rem;
+    }
+    
+    .pagination {
+        gap: 0.25rem;
+    }
+    
+    .page-number {
+        padding: 0.25rem 0.375rem;
+        min-width: 28px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --bg-dark: #000000;
+        --bg-medium: #111111;
+        --bg-light: #333333;
+        --text-primary: #FFFFFF;
+        --text-secondary: #CCCCCC;
+        --accent-pink: #FF6B9D;
+    }
+    
+    .patient-card-item,
+    .search-bar input,
+    .dropdown {
+        border: 1px solid var(--text-secondary);
+    }
+}
+
+/* Print styles */
+@media print {
+    .logout-btn,
+    .pagination {
+        display: none;
+    }
+    
+    .patient-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .patient-card-item {
+        border: 1px solid #ccc;
+        break-inside: avoid;
+    }
+}

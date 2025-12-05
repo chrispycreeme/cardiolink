@@ -1,0 +1,201 @@
+.vitals-graph-section {
+    grid-area: graph;
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0;
+    margin-top: 1rem;
+}
+
+.graph-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.graph-title h2 {
+    font-size: 1.5rem;
+}
+
+.graph-title p {
+    color: var(--text-secondary);
+}
+
+.graph-range {
+    background-color: var(--bg-light);
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.graph-container {
+    display: flex;
+    gap: 1rem;
+    height: 220px;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.y-axis-labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 2;
+}
+
+.y-axis-labels .active {
+    color: var(--text-primary);
+    background-color: var(--accent-pink);
+    padding: 0.2rem 0.6rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.chart-wrapper {
+    flex-grow: 1;
+    position: relative;
+}
+
+.chart-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(to bottom,
+            transparent,
+            transparent 36.5px,
+            var(--bg-light) 37.5px,
+            var(--bg-light) 37.5px);
+    z-index: 0;
+}
+
+#vitalsChart {
+    width: 100% !important;
+    height: 100% !important;
+    position: relative;
+    z-index: 1;
+}
+
+.graph-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-secondary);
+}
+
+.legend {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-item .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.heart-rate-legend .dot {
+    background-color: var(--accent-pink);
+}
+
+.oxygen-level-legend .dot {
+    background-color: var(--accent-blue);
+}
+
+.body-temp-legend .dot {
+    background-color: var(--accent-orange);
+}
+
+.ecg-graph-section {
+    background-color: rgba(20, 23, 43, 0.85);
+    border-radius: 14px;
+    padding: 12px 14px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    grid-column: 1 / -1; /* span full width */
+}
+
+.graph-container.ecg-container {
+    height: 280px;
+}
+
+.graph-container.ecg-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255, 99, 132, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 99, 132, 0.05) 1px, transparent 1px);
+    background-size: 14px 14px;
+    z-index: 0;
+    pointer-events: none;
+}
+
+#ecgChart {
+    width: 100% !important;
+    height: 100% !important;
+    position: relative;
+    z-index: 1;
+}
+
+.ecg-legend .dot {
+    background-color: #5DD5C8;
+}
+
+.rpeak-legend .dot {
+    background-color: #F2C94C;
+}
+
+.qrs-chip {
+    background: linear-gradient(135deg, #f54b64, #f78ca0);
+    color: #0b0b12;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    box-shadow: 0 6px 20px rgba(245, 75, 100, 0.35);
+}
+
+.qrs-bar {
+    position: relative;
+    width: 300px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 8px 0 4px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.qrs-bar-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, #6be0c8, #f2c94c, #f54b64);
+    transition: width 0.3s ease;
+}
+
+.qrs-bar-label {
+    font-size: 0.8rem;
+    color: #d9d9e3;
+    margin-top: 2px;
+}

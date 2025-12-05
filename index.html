@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardiolink - Login</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="Logo">
+    <div class="logo-container">
+      <img src="assets/img/ecg_heart_70dp_C42847_FILL0_wght500_GRAD0_opsz48.png" alt="Cardiolink Logo" class="logo-img">
+      <h1>MEDICARE</h1>
+    </div>
+    <h2>Empowering Patients Through Smart, Innovative Healthcare Solutions..</h2>
+  </div>
+
+  <section class="login-section">
+    <div class="Login form">
+      <h1>Login</h1>
+      <h2>Login to see your patient data.</h2>
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="username">Identification Code (email)</label>
+          <input type="email" id="username" name="email" placeholder="doctor@cardiolink.com" required>
+        </div>
+        <div class="input-group">
+          <label for="password">Access Code</label>
+          <input type="password" id="password" name="password" placeholder="Password" required>
+        </div>
+        <button type="submit" id="loginButton">Login</button>
+        <p id="loginError" style="color: #ff9b9b; margin-top: 12px;"></p>
+      </form>
+    </div>
+  </section>
+
+  <script src="firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
+
+    if (!window.firebaseConfig || !window.firebaseConfig.apiKey) {
+      document.getElementById('loginError').textContent = 'Configure firebase-config.js first.';
+    }
+
+    const app = initializeApp(window.firebaseConfig);
+    const auth = getAuth(app);
+
+    const form = document.getElementById('loginForm');
+    const errorEl = document.getElementById('loginError');
+    const button = document.getElementById('loginButton');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorEl.textContent = '';
+      button.disabled = true;
+      const email = form.email.value.trim();
+      const password = form.password.value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        // Redirect to the Firebase-backed patient list (no PHP).
+        window.location.href = 'patient-list.html';
+      } catch (err) {
+        errorEl.textContent = err.message || 'Login failed. Check credentials.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    // If already signed in, skip login.
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        window.location.href = 'patient-list.html';
+      }
+    });
+  </script>
+</body>
+</html>
