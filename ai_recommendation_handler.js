@@ -33,6 +33,24 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Parse JSON robustly, even if wrapped in ```json fences or smart quotes
+    function parseJsonSafe(raw) {
+        if (!raw) return null;
+        let text = raw.trim();
+        text = text.replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
+        const smartToStraight = (s) => s.replace(/[\u201c\u201d]/g, '"').replace(/[\u2018\u2019]/g, "'");
+        try {
+            return JSON.parse(text);
+        } catch (_) {
+            try {
+                return JSON.parse(smartToStraight(text));
+            } catch (err) {
+                console.error('Failed to parse JSON from AI response', err, raw);
+                return null;
+            }
+        }
+    }
+
     async function fetchAIRecommendations() {
         showLoading();
 
@@ -56,7 +74,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const data = await response.json();
+            const raw = await response.text();
+            const data = parseJsonSafe(raw);
+
+            if (!data) {
+                throw new Error('Invalid JSON returned from AI');
+            }
 
             if (data.error) {
                 console.error("AI Recommendation Error:", data.error, data.details || '');
