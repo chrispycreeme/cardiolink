@@ -310,8 +310,11 @@
     }
 
     // Dev-only: inject an idealized P-QRS-T waveform and healthy vitals for demos.
-    function injectPerfectQrs() {
-      const now = Date.now();
+    // Dev-only: inject an idealized P-QRS-T waveform and healthy vitals for demos.
+    let perfectQrsInterval = null;
+    let isInjecting = false;
+
+    function generatePerfectReading(timestamp) {
       const intervalMs = 20; // sample spacing
       const count = 50;
       const base = new Array(count).fill(0);
@@ -328,19 +331,50 @@
       base[18] = 0.34;
       base[19] = 0.26;
 
-      const readings = base.map((mv, idx) => ({
-        id: `fake-${idx}`,
-        timestamp: now - (count - idx) * intervalMs,
-        heartRate: 75,
+      return base.map((mv, idx) => ({
+        id: `fake-${timestamp}-${idx}`,
+        timestamp: timestamp - (count - idx) * intervalMs,
+        heartRate: 75 + (Math.random() * 2 - 1), // slight variation
         oxygen: 98,
         temperature: 36.8,
         ecgMv: mv
       }));
+    }
 
-      latestReadings = readings;
-      updateVitals();
-      updateChart();
-      updateEcgChart();
+    function togglePerfectQrs() {
+      const devBtn = document.getElementById('btnInjectPerfectQrs');
+      
+      if (isInjecting) {
+        // Stop injecting
+        clearInterval(perfectQrsInterval);
+        perfectQrsInterval = null;
+        isInjecting = false;
+        if (devBtn) {
+          devBtn.textContent = 'Inject Perfect QRS';
+          devBtn.style.background = '#C8435D';
+        }
+      } else {
+        // Start injecting
+        isInjecting = true;
+        if (devBtn) {
+          devBtn.textContent = 'Stop Perfect QRS';
+          devBtn.style.background = '#ff6b6b';
+        }
+        
+        // Inject immediately
+        latestReadings = generatePerfectReading(Date.now());
+        updateVitals();
+        updateChart();
+        updateEcgChart();
+        
+        // Then inject every 1 second
+        perfectQrsInterval = setInterval(() => {
+          latestReadings = generatePerfectReading(Date.now());
+          updateVitals();
+          updateChart();
+          updateEcgChart();
+        }, 1000);
+      }
     }
 
     function watchReadings() {
@@ -793,8 +827,15 @@
 
     const devBtn = document.getElementById('btnInjectPerfectQrs');
     if (devBtn) {
-      devBtn.addEventListener('click', injectPerfectQrs);
+      devBtn.addEventListener('click', togglePerfectQrs);  // ← Changed from injectPerfectQrs
     }
+    
+    window.addEventListener('beforeunload', () => {  // ← NEW: Cleanup handler
+      if (perfectQrsInterval) {
+        clearInterval(perfectQrsInterval);
+      }
+    });}
   </script>
 </body>
 </html>
+
