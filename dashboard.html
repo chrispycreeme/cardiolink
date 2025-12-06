@@ -197,9 +197,6 @@
         <button class="button" id="analyzeBtn" type="button" style="width:100%; padding:10px; border:none; border-radius:12px; background:#C8435D; color:#fff; font-weight:700; cursor:pointer;">Analyze with Gemini</button>
         <p class="small" id="aiError" style="color:#ff9b9b; margin-top:8px;"></p>
       </div>
-
-      <!-- Hidden dev helper: inject idealized QRS waveform for quick demos/testing -->
-      <button id="btnInjectPerfectQrs" style="display:none;" aria-hidden="true">Inject Perfect QRS</button>
     </aside>
   </div>
 
@@ -307,74 +304,6 @@
         const avatarText = (name[0] || 'P').toUpperCase();
         ui.patientAvatar.src = `https://placehold.co/150x150/6C757D/FFFFFF?text=${avatarText}`;
       });
-    }
-
-    // Dev-only: inject an idealized P-QRS-T waveform and healthy vitals for demos.
-    // Dev-only: inject an idealized P-QRS-T waveform and healthy vitals for demos.
-    let perfectQrsInterval = null;
-    let isInjecting = false;
-
-    function generatePerfectReading(timestamp) {
-      const intervalMs = 20; // sample spacing
-      const count = 50;
-      const base = new Array(count).fill(0);
-      // P wave
-      base[6] = 0.12;
-      base[7] = 0.18;
-      // QRS complex (roughly 80 ms wide)
-      base[9] = -0.15; // Q
-      base[11] = 1.65; // R
-      base[12] = 0.95; // descending R
-      base[13] = -0.12; // S
-      // T wave
-      base[17] = 0.18;
-      base[18] = 0.34;
-      base[19] = 0.26;
-
-      return base.map((mv, idx) => ({
-        id: `fake-${timestamp}-${idx}`,
-        timestamp: timestamp - (count - idx) * intervalMs,
-        heartRate: 75 + (Math.random() * 2 - 1), // slight variation
-        oxygen: 98,
-        temperature: 36.8,
-        ecgMv: mv
-      }));
-    }
-
-    function togglePerfectQrs() {
-      const devBtn = document.getElementById('btnInjectPerfectQrs');
-      
-      if (isInjecting) {
-        // Stop injecting
-        clearInterval(perfectQrsInterval);
-        perfectQrsInterval = null;
-        isInjecting = false;
-        if (devBtn) {
-          devBtn.textContent = 'Inject Perfect QRS';
-          devBtn.style.background = '#C8435D';
-        }
-      } else {
-        // Start injecting
-        isInjecting = true;
-        if (devBtn) {
-          devBtn.textContent = 'Stop Perfect QRS';
-          devBtn.style.background = '#ff6b6b';
-        }
-        
-        // Inject immediately
-        latestReadings = generatePerfectReading(Date.now());
-        updateVitals();
-        updateChart();
-        updateEcgChart();
-        
-        // Then inject every 1 second
-        perfectQrsInterval = setInterval(() => {
-          latestReadings = generatePerfectReading(Date.now());
-          updateVitals();
-          updateChart();
-          updateEcgChart();
-        }, 1000);
-      }
     }
 
     function watchReadings() {
@@ -824,18 +753,8 @@
     }
 
     ui.analyzeBtn.addEventListener('click', runGemini);
-
-    const devBtn = document.getElementById('btnInjectPerfectQrs');
-    if (devBtn) {
-      devBtn.addEventListener('click', togglePerfectQrs);  // ← Changed from injectPerfectQrs
-    }
-    
-    window.addEventListener('beforeunload', () => {  // ← NEW: Cleanup handler
-      if (perfectQrsInterval) {
-        clearInterval(perfectQrsInterval);
-      }
-    });}
   </script>
 </body>
 </html>
+
 
